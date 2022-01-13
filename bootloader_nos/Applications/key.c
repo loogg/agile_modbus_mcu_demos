@@ -1,7 +1,6 @@
 #include <string.h>
 #include "main.h"
 #include "common.h"
-#include "boot.h"
 #include "task_run.h"
 
 #define DBG_ENABLE
@@ -51,7 +50,7 @@ struct agile_btn {
 };
 
 #define AGILE_BUTTON_ELIMINATION_TIME_DEFAULT  15   /**< 按键消抖默认时间 15ms */
-#define AGILE_BUTTON_TWO_INTERVAL_TIME_DEFAULT 500  /**< 两次按键按下间隔超过500ms清零重复计数 */
+#define AGILE_BUTTON_TWO_INTERVAL_TIME_DEFAULT 200  /**< 两次按键按下间隔超过200ms清零重复计数 */
 #define AGILE_BUTTON_HOLD_CYCLE_TIME_DEFAULT   1000 /**< 按键按下后持续调用回调函数的周期 */
 
 /**
@@ -116,7 +115,7 @@ static int agile_btn_set_event_cb(agile_btn_t *btn, enum agile_btn_event event, 
 
 #define TASK_RUN_PERIOD 5
 
-static agile_btn_t _btn_tab[2] = {0};
+static agile_btn_t _btn_tab[3] = {0};
 
 static int task_entry(struct task_pcb *task)
 {
@@ -187,12 +186,18 @@ static int task_entry(struct task_pcb *task)
 
 static void key0_click_cb(agile_btn_t *btn)
 {
-    LOG_I("will run app1. %d", btn->repeat_cnt);
+    LOG_I("key0. %d", btn->repeat_cnt);
 }
 
 static void key1_click_cb(agile_btn_t *btn)
 {
-    LOG_I("will run app2. %d", btn->repeat_cnt);
+    task_event_send(TASK_INDEX_RS485_MODBUS, RS485_MODBUS_EVENT_SWITCH);
+}
+
+extern void print_help(void);
+static void key2_click_cb(agile_btn_t *btn)
+{
+    print_help();
 }
 
 void key_init(void)
@@ -202,6 +207,10 @@ void key_init(void)
 
     agile_btn_init(&_btn_tab[1], KEY1_GPIO_Port, KEY1_Pin, 0);
     agile_btn_set_event_cb(&_btn_tab[1], BTN_CLICK_EVENT, key1_click_cb);
+
+    agile_btn_init(&_btn_tab[2], KEY2_GPIO_Port, KEY2_Pin, 0);
+    agile_btn_set_event_cb(&_btn_tab[2], BTN_CLICK_EVENT, key2_click_cb);
+
 
     task_init(TASK_INDEX_KEY, task_entry, TASK_RUN_PERIOD);
     task_start(TASK_INDEX_KEY);

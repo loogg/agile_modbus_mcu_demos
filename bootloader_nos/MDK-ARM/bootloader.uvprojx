@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;     ../Drivers/STM32F4xx_HAL_Driver/Inc;     ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;     ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;     ../Drivers/CMSIS/Include;     ..\Applications</IncludePath>
+              <IncludePath>../Core/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;   ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;   ../Drivers/CMSIS/Include;   ..\Applications;   ..\agile_modbus\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -631,9 +631,44 @@
               <FilePath>..\Applications\boot.c</FilePath>
             </File>
             <File>
-              <FileName>usr_key.c</FileName>
+              <FileName>key.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Applications\usr_key.c</FilePath>
+              <FilePath>..\Applications\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>task_run.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\task_run.c</FilePath>
+            </File>
+            <File>
+              <FileName>ringbuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\ringbuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>rs485.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\rs485.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>agile_modbus</GroupName>
+          <Files>
+            <File>
+              <FileName>agile_modbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\agile_modbus\src\agile_modbus.c</FilePath>
+            </File>
+            <File>
+              <FileName>agile_modbus_rtu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\agile_modbus\src\agile_modbus_rtu.c</FilePath>
+            </File>
+            <File>
+              <FileName>agile_modbus_tcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\agile_modbus\src\agile_modbus_tcp.c</FilePath>
             </File>
           </Files>
         </Group>

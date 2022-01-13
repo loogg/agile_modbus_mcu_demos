@@ -24,6 +24,16 @@ void task_stop(enum task_index index)
     _task_tab[index].enable = 0;
 }
 
+int task_event_send(enum task_index index, uint32_t set)
+{
+    if(_task_tab[index].enable == 0)
+        return -1;
+
+    _task_tab[index].event |= set;
+
+    return 0;
+}
+
 void task_process(void)
 {
     for (int i = 0; i < sizeof(_task_tab) / sizeof(_task_tab[0]); i++) {
