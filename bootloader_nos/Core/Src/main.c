@@ -24,7 +24,8 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "boot.h"
-#include "usr_key.h"
+#include "key.h"
+#include "task_run.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,11 +106,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  usr_key_init();
+  key_init();
   while (1)
   {
-    usr_key_process();
-    boot_process();
+    task_process();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

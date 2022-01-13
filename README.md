@@ -5,7 +5,7 @@
 1. 该仓库为轻量级协议栈 [Agile Modbus](https://github.com/loogg/agile_modbus) 在 MCU 上的例子。
 2. 提供 `裸机`、`RT-Thread` 示例。
 3. 提供简单 `RTU` 主机示例。
-4. 提供 `RTU` 从机，通过 [Agile Modbus](https://github.com/loogg/agile_modbus) 的 `p2p_master` 和 `broadcast_master` 特殊功能码示例实现点对点和快速数据流广播升级固件
+4. 提供 `RTU` 从机，通过 [Agile Modbus](https://github.com/loogg/agile_modbus) 的 `p2p_master` 和 `broadcast_master` 特殊功能码示例实现 `点对点` 和 `快速数据流广播升级固件`。
 5. 基于正点原子探索者开发板
 
 ![explorer](./figures/explorer.jpg)
@@ -14,7 +14,9 @@
 
 | 名称 | 说明 |
 | ---- | ---- |
-| bootloader_nos | bootloader 裸机程序 |
+| bootloader_nos | bootloader 裸机示例 |
+| bootloader_rtt | bootloader RT-Thread 示例 |
+| app | APP 应用程序 |
 
 ## 2、使用
 
