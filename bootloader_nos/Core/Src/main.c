@@ -59,7 +59,23 @@ DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
 struct global_attr gbl_attr = {0};
-const char *modbus_mode_str_tab[MODBUS_MODE_MAX] = {"master", "slave", "p2p_update", "broadcast_update"};
+const char *modbus_mode_str_tab[MODBUS_MODE_MAX] = {
+#if MODBUS_MASTER_ENABLE
+    "master",
+#endif
+
+#if MODBUS_SLAVE_ENABLE
+    "slave",
+#endif
+
+#if MODBUS_P2P_UPDATE_ENABLE
+    "p2p_update",
+#endif
+
+#if MODBUS_BROADCAST_UPDATE_ENABLE
+    "broadcast_update"
+#endif
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

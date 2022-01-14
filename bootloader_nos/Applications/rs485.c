@@ -20,13 +20,7 @@ static uint8_t _rx_rb_buf[1024];
 static uint32_t _rx_index = 0;
 static uint32_t _rx_tick_timeout = 0;
 static uint32_t _byte_timeout = 0;
-static uint32_t _tx_tick_timeout = 0;
 static uint32_t _tx_complete = 0;
-static uint8_t _ctx_send_buf[AGILE_MODBUS_MAX_ADU_LENGTH];
-static uint8_t _ctx_read_buf1[AGILE_MODBUS_MAX_ADU_LENGTH];
-
-static agile_modbus_rtu_t _ctx_rtu;
-static int _modbus_step[MODBUS_MODE_MAX] = {0};
 
 #define RS485_TX_EN() HAL_GPIO_WritePin(RS485_RE_GPIO_Port, RS485_RE_Pin, GPIO_PIN_SET)
 #define RS485_RX_EN() HAL_GPIO_WritePin(RS485_RE_GPIO_Port, RS485_RE_Pin, GPIO_PIN_RESET)
@@ -57,8 +51,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
 
     if (recv_len > 0) {
-        rs485_rx_rb_update(recv_len);
-        _rx_tick_timeout = HAL_GetTick() + _byte_timeout;
+        if (rs485_rx_rb_update(recv_len) < 0)
+            rs485_flush();
+        else
+            _rx_tick_timeout = HAL_GetTick() + _byte_timeout;
     }
 }
 
@@ -73,8 +69,10 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
     }
 
     if (recv_len > 0) {
-        rs485_rx_rb_update(recv_len);
-        _rx_tick_timeout = HAL_GetTick() + _byte_timeout;
+        if (rs485_rx_rb_update(recv_len) < 0)
+            rs485_flush();
+        else
+            _rx_tick_timeout = HAL_GetTick() + _byte_timeout;
     }
 }
 
@@ -100,8 +98,10 @@ static int rs485_monitor(struct task_pcb *task)
         _rx_index = index;
 
         if (recv_len > 0) {
-            rs485_rx_rb_update(recv_len);
-            _rx_tick_timeout = HAL_GetTick() + _byte_timeout;
+            if (rs485_rx_rb_update(recv_len) < 0)
+                rs485_flush();
+            else
+                _rx_tick_timeout = HAL_GetTick() + _byte_timeout;
         }
     } while (0);
     __enable_irq();
@@ -166,6 +166,7 @@ int rs485_receive(uint8_t *buf, int bufsz, int timeout, int bytes_timeout, int *
 
 int rs485_send(uint8_t *buf, int len, int timeout, int *state)
 {
+    static uint32_t __tx_tick_timeout = 0;
     int send_len = 0;
 
     switch (*state) {
@@ -175,7 +176,7 @@ int rs485_send(uint8_t *buf, int len, int timeout, int *state)
         HAL_UART_AbortTransmit(&huart2);
         _tx_complete = 0;
         HAL_UART_Transmit_DMA(&huart2, buf, len);
-        _tx_tick_timeout = HAL_GetTick() + timeout;
+        __tx_tick_timeout = HAL_GetTick() + timeout;
     } break;
 
     case RS485_SEND_STATE_WAIT: {
@@ -183,7 +184,7 @@ int rs485_send(uint8_t *buf, int len, int timeout, int *state)
             send_len = len;
             *state = RS485_SEND_STATE_FINISH;
         } else {
-            if ((HAL_GetTick() - _tx_tick_timeout) < (HAL_TICK_MAX / 2))
+            if ((HAL_GetTick() - __tx_tick_timeout) < (HAL_TICK_MAX / 2))
                 *state = RS485_SEND_STATE_FINISH;
         }
     } break;
@@ -197,92 +198,7 @@ int rs485_send(uint8_t *buf, int len, int timeout, int *state)
     return send_len;
 }
 
-void rs485_flush(void)
-{
-    rt_ringbuffer_init(&_rx_rb, _rx_rb_buf, sizeof(_rx_rb_buf));
-    HAL_UART_AbortReceive(&huart2);
-    HAL_UART_Receive_DMA(&huart2, _rx_rb.buffer_ptr, _rx_rb.buffer_size);
-    _rx_index = _rx_rb.buffer_size;
-}
-
-static void modbus_master_process(void)
-{
-#define PROCESS_INTERVAL 100
-
-    static int __tx_state = RS485_SEND_STATE_START;
-    static int __rx_state = RS485_RECV_STATE_START;
-    static int __send_len = 0;
-    static int __read_len = 0;
-    static uint32_t __tick_timeout = 0;
-
-    int *run_step = &_modbus_step[gbl_attr.modbus_mode];
-    agile_modbus_t *ctx = &_ctx_rtu._ctx;
-    uint16_t hold_register[10];
-
-    switch(*run_step) {
-        case 0: {
-            agile_modbus_rtu_init(&_ctx_rtu, _ctx_send_buf, sizeof(_ctx_send_buf), _ctx_read_buf1, sizeof(_ctx_read_buf1));
-            agile_modbus_set_slave(ctx, 1);
-            *run_step = 1;
-        } break;
-
-        case 1: {
-            __tx_state = RS485_SEND_STATE_START;
-            __rx_state = RS485_RECV_STATE_START;
-            __send_len = agile_modbus_serialize_read_registers(ctx, 0, 10);
-            *run_step = 2;
-        } break;
-
-        case 2: {
-            int rc = rs485_send(ctx->send_buf, __send_len, 1000, &__tx_state);
-            if(__tx_state == RS485_SEND_STATE_FINISH) {
-                if(rc != __send_len) {
-                    *run_step = 5;
-                    LOG_I("send timeout.");
-                    __tick_timeout = HAL_GetTick() + PROCESS_INTERVAL;
-                }
-                else
-                    *run_step = 3;
-            }
-        } break;
-
-        case 3: {
-            __read_len = rs485_receive(ctx->read_buf, ctx->read_bufsz, 1000, 50, &__rx_state);
-            if(__rx_state == RS485_RECV_STATE_FINISH) {
-                if(__read_len == 0) {
-                    *run_step = 5;
-                    LOG_I("recv timeout.");
-                    __tick_timeout = HAL_GetTick() + PROCESS_INTERVAL;
-                }
-                else
-                    *run_step = 4;
-            }
-        } break;
-
-        case 4: {
-            int rc = agile_modbus_deserialize_read_registers(ctx, __read_len, hold_register);
-            if (rc < 0) {
-                LOG_W("Receive failed.");
-            } else {
-                LOG_I("Hold Registers:");
-                for (int i = 0; i < 10; i++)
-                    LOG_I("Register [%d]: 0x%04X", i, hold_register[i]);
-
-                printf("\r\n\r\n\r\n");
-            }
-
-            __tick_timeout = HAL_GetTick() + PROCESS_INTERVAL;
-            *run_step = 5;
-        } break;
-
-        default: {
-            if((HAL_GetTick() - __tick_timeout) >= (HAL_TICK_MAX / 2))
-                break;
-
-            *run_step = 1;
-        }break;
-    }
-}
+extern void modbus_master_process(void);
 
 static int rs485_modbus(struct task_pcb *task)
 {
@@ -292,7 +208,7 @@ static int rs485_modbus(struct task_pcb *task)
         if (gbl_attr.modbus_mode == MODBUS_MODE_MAX)
             gbl_attr.modbus_mode = MODBUS_MODE_MASTER;
 
-        _modbus_step[gbl_attr.modbus_mode] = 0;
+        gbl_attr.modbus_step[gbl_attr.modbus_mode] = 0;
 
         printf("\r\n\r\n");
         LOG_I("modbus mode switch to %s", modbus_mode_str_tab[gbl_attr.modbus_mode]);
@@ -309,6 +225,14 @@ static int rs485_modbus(struct task_pcb *task)
     }
 
     return 0;
+}
+
+void rs485_flush(void)
+{
+    rt_ringbuffer_init(&_rx_rb, _rx_rb_buf, sizeof(_rx_rb_buf));
+    HAL_UART_AbortReceive(&huart2);
+    HAL_UART_Receive_DMA(&huart2, _rx_rb.buffer_ptr, _rx_rb.buffer_size);
+    _rx_index = _rx_rb.buffer_size;
 }
 
 void rs485_init(void)
