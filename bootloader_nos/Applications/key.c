@@ -115,7 +115,7 @@ static int agile_btn_set_event_cb(agile_btn_t *btn, enum agile_btn_event event, 
 
 #define TASK_RUN_PERIOD 5
 
-static agile_btn_t _btn_tab[3] = {0};
+static agile_btn_t _btn_tab[4] = {0};
 
 static int task_entry(struct task_pcb *task)
 {
@@ -184,9 +184,14 @@ static int task_entry(struct task_pcb *task)
     return 0;
 }
 
+static void keyup_click_cb(agile_btn_t *btn)
+{
+    task_event_send(TASK_INDEX_RS485_MODBUS, RS485_MODBUS_UPDATE_ERASE);
+}
+
 static void key0_click_cb(agile_btn_t *btn)
 {
-    LOG_I("key0. %d", btn->repeat_cnt);
+    task_event_send(TASK_INDEX_BOOT, BOOT_EVENT_RUN_APP);
 }
 
 static void key1_click_cb(agile_btn_t *btn)
@@ -211,6 +216,8 @@ void key_init(void)
     agile_btn_init(&_btn_tab[2], KEY2_GPIO_Port, KEY2_Pin, 0);
     agile_btn_set_event_cb(&_btn_tab[2], BTN_CLICK_EVENT, key2_click_cb);
 
+    agile_btn_init(&_btn_tab[3], KEY_UP_GPIO_Port, KEY_UP_Pin, 1);
+    agile_btn_set_event_cb(&_btn_tab[3], BTN_CLICK_EVENT, keyup_click_cb);
 
     task_init(TASK_INDEX_KEY, task_entry, TASK_RUN_PERIOD);
     task_start(TASK_INDEX_KEY);

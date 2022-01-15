@@ -1,6 +1,8 @@
 #ifndef __RS485_H
 #define __RS485_H
 
+#include <stdint.h>
+
 enum {
     RS485_RECV_STATE_START = 0,
     RS485_RECV_STATE_WAIT_FIRST,
