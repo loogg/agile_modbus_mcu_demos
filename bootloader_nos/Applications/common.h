@@ -6,12 +6,10 @@
 /** @defgroup BOOT_DEF  Boot Definition
  * @{
  */
-#define BOOT_BKP       RTC_BKP_DR15
-#define BOOT_APP1_FLAG 0x1515
-#define BOOT_APP2_FLAG 0x2525
-
-#define BOOT_APP1_ADDR 0x8004000
-#define BOOT_APP2_ADDR 0x8020000
+#define BOOT_BKP      RTC_BKP_DR15
+#define BOOT_APP_FLAG 0xA5A5
+#define BOOT_APP_ADDR 0x08008000
+#define BOOT_APP_SIZE 0xF8000
 /**
  * @}
  */
@@ -29,6 +27,15 @@
  * @{
  */
 #define RS485_MODBUS_EVENT_SWITCH 0x01
+#define RS485_MODBUS_UPDATE_ERASE 0x02
+/**
+ * @}
+ */
+
+/** @defgroup BOOT_EVENT    BOOT EVENT
+ * @{
+ */
+#define BOOT_EVENT_RUN_APP 0x01
 /**
  * @}
  */
@@ -39,9 +46,9 @@
 #define MODBUS_MASTER_ENABLE           1
 #define MODBUS_SLAVE_ENABLE            1
 #define MODBUS_P2P_UPDATE_ENABLE       1
-#define MODBUS_BROADCAST_UPDATE_ENABLE 0
+#define MODBUS_BROADCAST_UPDATE_ENABLE 1
 
-#if MODBUS_BROADCAST_UPDATE_ENABLE
+#if MODBUS_P2P_UPDATE_ENABLE || MODBUS_BROADCAST_UPDATE_ENABLE
 #define MODBUS_RECV_BUF 2048
 #else
 #define MODBUS_RECV_BUF AGILE_MODBUS_MAX_ADU_LENGTH
@@ -78,7 +85,10 @@ struct global_attr {
 #if MODBUS_BROADCAST_UPDATE_ENABLE
     uint8_t ctx_read_buf2[MODBUS_RECV_BUF];
 #endif
+    uint8_t erase_flag;
     int modbus_step[MODBUS_MODE_MAX];
+    uint32_t modbus_total_cnt[MODBUS_MODE_MAX];
+    uint32_t modbus_success_cnt[MODBUS_MODE_MAX];
 };
 extern struct global_attr gbl_attr;
 

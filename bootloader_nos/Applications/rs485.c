@@ -11,12 +11,20 @@
 #define DBG_LEVEL        DBG_LOG
 #include "dbg_log.h"
 
+#if MODBUS_BROADCAST_UPDATE_ENABLE
+#define RS485_RX_RB_BUFSZ 10240
+#elif MODBUS_P2P_UPDATE_ENABLE
+#define RS485_RX_RB_BUFSZ 2048
+#else
+#define RS485_RX_RB_BUFSZ 1024
+#endif
+
 extern UART_HandleTypeDef huart2;
 extern DMA_HandleTypeDef hdma_usart2_tx;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 
 static struct rt_ringbuffer _rx_rb = {0};
-static uint8_t _rx_rb_buf[1024];
+static uint8_t _rx_rb_buf[RS485_RX_RB_BUFSZ];
 static uint32_t _rx_index = 0;
 static uint32_t _rx_tick_timeout = 0;
 static uint32_t _byte_timeout = 0;
@@ -198,7 +206,21 @@ int rs485_send(uint8_t *buf, int len, int timeout, int *state)
     return send_len;
 }
 
+#if MODBUS_MASTER_ENABLE
 extern void modbus_master_process(void);
+#endif
+
+#if MODBUS_SLAVE_ENABLE
+extern void modbus_slave_process(void);
+#endif
+
+#if MODBUS_P2P_UPDATE_ENABLE
+extern void modbus_p2p_process(void);
+#endif
+
+#if MODBUS_BROADCAST_UPDATE_ENABLE
+extern void modbus_broadcast_process(void);
+#endif
 
 static int rs485_modbus(struct task_pcb *task)
 {
@@ -206,19 +228,60 @@ static int rs485_modbus(struct task_pcb *task)
         task->event &= ~RS485_MODBUS_EVENT_SWITCH;
         gbl_attr.modbus_mode++;
         if (gbl_attr.modbus_mode == MODBUS_MODE_MAX)
-            gbl_attr.modbus_mode = MODBUS_MODE_MASTER;
+            gbl_attr.modbus_mode = 0;
 
+        gbl_attr.erase_flag = 0;
         gbl_attr.modbus_step[gbl_attr.modbus_mode] = 0;
+        gbl_attr.modbus_total_cnt[gbl_attr.modbus_mode] = 0;
+        gbl_attr.modbus_success_cnt[gbl_attr.modbus_mode] = 0;
 
         printf("\r\n\r\n");
         LOG_I("modbus mode switch to %s", modbus_mode_str_tab[gbl_attr.modbus_mode]);
         printf("\r\n\r\n");
     }
 
+    if (task->event & RS485_MODBUS_UPDATE_ERASE) {
+        task->event &= ~RS485_MODBUS_UPDATE_ERASE;
+
+#if MODBUS_P2P_UPDATE_ENABLE
+        if (gbl_attr.modbus_mode == MODBUS_MODE_P2P_UPDATE) {
+            gbl_attr.modbus_step[gbl_attr.modbus_mode] = 0;
+            gbl_attr.erase_flag = 1;
+        }
+#endif
+
+#if MODBUS_BROADCAST_UPDATE_ENABLE
+        if (gbl_attr.modbus_mode == MODBUS_MODE_BROADCAST_UPDATE) {
+            gbl_attr.modbus_step[gbl_attr.modbus_mode] = 0;
+            gbl_attr.erase_flag = 1;
+        }
+#endif
+    }
+
     switch (gbl_attr.modbus_mode) {
+#if MODBUS_MASTER_ENABLE
     case MODBUS_MODE_MASTER:
         modbus_master_process();
         break;
+#endif
+
+#if MODBUS_SLAVE_ENABLE
+    case MODBUS_MODE_SLAVE:
+        modbus_slave_process();
+        break;
+#endif
+
+#if MODBUS_P2P_UPDATE_ENABLE
+    case MODBUS_MODE_P2P_UPDATE:
+        modbus_p2p_process();
+        break;
+#endif
+
+#if MODBUS_BROADCAST_UPDATE_ENABLE
+    case MODBUS_MODE_BROADCAST_UPDATE:
+        modbus_broadcast_process();
+        break;
+#endif
 
     default:
         break;

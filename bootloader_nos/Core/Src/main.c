@@ -99,8 +99,14 @@ void print_help(void)
     LOG_I("Click KEY2 to print help.");
     LOG_I("Click KEY1 to switch modbus demo (master/slave/p2p_update/broadcast_update).");
     LOG_I("Click KEY0 to run app.");
+    LOG_I("Click KEY_UP to erase app flash in p2p_update/broadcast_update mode");
     printf("\r\n");
     LOG_I("now modbus mode is %s", modbus_mode_str_tab[gbl_attr.modbus_mode]);
+    printf("\r\n");
+    for (int i = 0; i < MODBUS_MODE_MAX; i++) {
+        LOG_I("mode:%18s  total_cnt:%10u  success_cnt:%10u", modbus_mode_str_tab[i],
+              gbl_attr.modbus_total_cnt[i], gbl_attr.modbus_success_cnt[i]);
+    }
     printf("\r\n\r\n");
 }
 
@@ -146,6 +152,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   key_init();
   rs485_init();
+  boot_init();
   while (1)
   {
     task_process();
@@ -342,6 +349,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : KEY_UP_Pin */
+  GPIO_InitStruct.Pin = KEY_UP_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(KEY_UP_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : RS485_RE_Pin */
   GPIO_InitStruct.Pin = RS485_RE_Pin;

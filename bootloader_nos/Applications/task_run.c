@@ -26,7 +26,7 @@ void task_stop(enum task_index index)
 
 int task_event_send(enum task_index index, uint32_t set)
 {
-    if(_task_tab[index].enable == 0)
+    if (_task_tab[index].enable == 0)
         return -1;
 
     _task_tab[index].event |= set;

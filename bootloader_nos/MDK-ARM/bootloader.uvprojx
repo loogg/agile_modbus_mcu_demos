@@ -54,7 +54,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\build\list\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc;   ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;   ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;   ../Drivers/CMSIS/Include;   ..\Applications;   ..\agile_modbus\inc</IncludePath>
+              <IncludePath>../Core/Inc;    ../Drivers/STM32F4xx_HAL_Driver/Inc;    ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;    ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;    ../Drivers/CMSIS/Include;    ..\Applications;    ..\agile_modbus\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -649,6 +649,31 @@
               <FileName>rs485.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Applications\rs485.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtu_master.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\rtu_master.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtu_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\rtu_slave.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\drv_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>p2p_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\p2p_slave.c</FilePath>
+            </File>
+            <File>
+              <FileName>broadcast_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\broadcast_slave.c</FilePath>
             </File>
           </Files>
         </Group>

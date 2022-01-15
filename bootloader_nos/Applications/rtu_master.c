@@ -1,9 +1,18 @@
 #include "rs485.h"
 #include "common.h"
+#include "main.h"
+
+#if MODBUS_MASTER_ENABLE
+
+#define DBG_ENABLE
+#define DBG_COLOR
+#define DBG_SECTION_NAME "rtu_master"
+#define DBG_LEVEL        DBG_LOG
+#include "dbg_log.h"
 
 void modbus_master_process(void)
 {
-#define PROCESS_INTERVAL 100
+#define PROCESS_INTERVAL 10
 
     static int __tx_state = RS485_SEND_STATE_START;
     static int __rx_state = RS485_RECV_STATE_START;
@@ -24,6 +33,7 @@ void modbus_master_process(void)
     } break;
 
     case 1: {
+        gbl_attr.modbus_total_cnt[gbl_attr.modbus_mode]++;
         __tx_state = RS485_SEND_STATE_START;
         __rx_state = RS485_RECV_STATE_START;
         __send_len = agile_modbus_serialize_read_registers(ctx, 0, 10);
@@ -59,6 +69,7 @@ void modbus_master_process(void)
         if (rc < 0) {
             LOG_W("Receive failed.");
         } else {
+            gbl_attr.modbus_success_cnt[gbl_attr.modbus_mode]++;
             LOG_I("Hold Registers:");
             for (int i = 0; i < 10; i++)
                 LOG_I("Register [%d]: 0x%04X", i, hold_register[i]);
@@ -78,3 +89,5 @@ void modbus_master_process(void)
     } break;
     }
 }
+
+#endif

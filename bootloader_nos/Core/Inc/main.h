@@ -64,6 +64,8 @@ void Error_Handler(void);
 #define KEY1_GPIO_Port GPIOE
 #define KEY0_Pin GPIO_PIN_4
 #define KEY0_GPIO_Port GPIOE
+#define KEY_UP_Pin GPIO_PIN_0
+#define KEY_UP_GPIO_Port GPIOA
 #define RS485_RE_Pin GPIO_PIN_8
 #define RS485_RE_GPIO_Port GPIOG
 /* USER CODE BEGIN Private defines */

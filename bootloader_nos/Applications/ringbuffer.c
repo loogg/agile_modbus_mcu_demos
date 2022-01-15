@@ -219,8 +219,7 @@ uint32_t rt_ringbuffer_put_update(struct rt_ringbuffer *rb, uint16_t length)
     if (size < length)
         length = size;
 
-    if (rb->buffer_size - rb->write_index > length)
-    {
+    if (rb->buffer_size - rb->write_index > length) {
         /* this should not cause overflow because there is enough space for
          * length of data in current mirror */
         rb->write_index += length;

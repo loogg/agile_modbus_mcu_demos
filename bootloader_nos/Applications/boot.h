@@ -8,6 +8,6 @@ struct boot_state {
 extern struct boot_state boot_en;
 
 void boot_check(void);
-void boot_process(void);
+void boot_init(void);
 
 #endif
