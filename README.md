@@ -17,7 +17,7 @@
   | ---- | ---- |
   | bootloader_nos | bootloader 裸机示例 |
   | figures | 素材 |
-  | bootloader_rtt | bootloader RT-Thread 示例 (开发中) |
+  | bootloader_rtt | bootloader RT-Thread 示例 (开发中，目前只支持 RTU 主机) |
   | update_tool | 固件升级示例使用工具和应用程序执行文件 |
 
 - 所有示例都是实现在 `bootloader` 中。

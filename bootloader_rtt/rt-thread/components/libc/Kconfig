@@ -1,0 +1,10 @@
+menu "POSIX layer and C standard library"
+
+config RT_LIBC_DEFAULT_TIMEZONE
+    int "Set the default time zone (UTC+)"
+    range -12 12
+    default 8
+
+source "$RTT_DIR/components/libc/posix/Kconfig"
+
+endmenu

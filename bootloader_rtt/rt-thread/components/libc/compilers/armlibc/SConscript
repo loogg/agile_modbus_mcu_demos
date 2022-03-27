@@ -1,0 +1,12 @@
+from building import *
+Import('rtconfig')
+
+src   = Glob('*.c')
+group = []
+
+CPPDEFINES = ['RT_USING_ARM_LIBC']
+
+if rtconfig.PLATFORM == 'armcc' or rtconfig.PLATFORM == 'armclang':
+    group = DefineGroup('Compiler', src, depend = [''], CPPDEFINES = CPPDEFINES)
+
+Return('group')
