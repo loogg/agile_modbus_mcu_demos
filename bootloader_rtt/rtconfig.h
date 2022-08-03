@@ -140,13 +140,18 @@
 /* IoT Cloud */
 
 #define PKG_USING_AGILE_MODBUS
-#define PKG_USING_AGILE_MODBUS_LATEST_VERSION
-#define PKG_AGILE_MODBUS_VER_NUM 0x99999
+#define PKG_USING_AGILE_MODBUS_V111
+#define PKG_AGILE_MODBUS_VER_NUM 0x10101
 
 /* security packages */
 
 
 /* language packages */
+
+/* JSON: JavaScript Object Notation, a lightweight data-interchange format */
+
+
+/* XML: Extensible Markup Language */
 
 
 /* multimedia packages */
@@ -168,9 +173,6 @@
 /* enhanced kernel services */
 
 
-/* POSIX extension functions */
-
-
 /* acceleration: Assembly language or algorithmic acceleration packages */
 
 
@@ -181,6 +183,9 @@
 
 
 /* peripheral libraries and drivers */
+
+
+/* Kendryte SDK */
 
 
 /* AI packages */
