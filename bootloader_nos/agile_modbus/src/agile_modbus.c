@@ -2,8 +2,7 @@
  * @file    agile_modbus.c
  * @brief   Agile Modbus 软件包通用源文件
  * @author  马龙伟 (2544047213@qq.com)
- * @version 1.1.0
- * @date    2021-12-02
+ * @date    2022-07-28
  *
  @verbatim
     使用：
@@ -427,8 +426,8 @@ static int agile_modbus_check_confirmation(agile_modbus_t *ctx, uint8_t *req,
         case AGILE_MODBUS_FC_READ_COILS:
         case AGILE_MODBUS_FC_READ_DISCRETE_INPUTS:
             /* Read functions, 8 values in a byte (nb
-                * of values in the request and byte count in
-                * the response. */
+             * of values in the request and byte count in
+             * the response. */
             req_nb_value = (req[offset + 3] << 8) + req[offset + 4];
             req_nb_value = (req_nb_value / 8) + ((req_nb_value % 8) ? 1 : 0);
             rsp_nb_value = rsp[offset + 1];
@@ -1197,11 +1196,12 @@ uint16_t agile_modbus_slave_register_get(uint8_t *buf, int index)
  *     @arg 0: 不比对从机地址
  *     @arg 1: 比对从机地址
  * @param   slave_cb 从机回调函数
+ * @param   slave_data 从机回调函数私有数据
  * @param   frame_length 存放 modbus 数据帧长度
  * @return  >=0:要响应的数据长度; 其他:异常
  */
 int agile_modbus_slave_handle(agile_modbus_t *ctx, int msg_length, uint8_t slave_strict,
-                              agile_modbus_slave_callback_t slave_cb, int *frame_length)
+                              agile_modbus_slave_callback_t slave_cb, const void *slave_data, int *frame_length)
 {
     int min_rsp_length = ctx->backend->header_length + 5 + ctx->backend->checksum_length;
     if (ctx->send_bufsz < min_rsp_length)
@@ -1476,7 +1476,7 @@ int agile_modbus_slave_handle(agile_modbus_t *ctx, int msg_length, uint8_t slave
         rsp_length = agile_modbus_serialize_response_exception(ctx, &sft, exception_code);
     else {
         if (slave_cb) {
-            int ret = slave_cb(ctx, &slave_info);
+            int ret = slave_cb(ctx, &slave_info, slave_data);
 
             if (ret < 0) {
                 if (ret == -AGILE_MODBUS_EXCEPTION_UNKNOW)

@@ -106,9 +106,16 @@
 
 ### 2.2、从机示例
 
-- 打开 `Modbus Poll`，设置如下
+- 寄存器地址域：
 
-  ![ModbusPollSetup](./figures/ModbusPollSetup.jpg)
+  | 寄存器 | 地址范围 |
+  | --- | --- |
+  | 线圈寄存器 | 0x041A ~ 0x0423 (1050 ~ 1059) |
+  | 离散量输入寄存器 | 0x041A ~ 0x0423 (1050 ~ 1059) |
+  | 保持寄存器 | 0xFFF6 ~ 0xFFFF (65526 ~ 65535) |
+  | 输入寄存器 | 0xFFF6 ~ 0xFFFF (65526 ~ 65535) |
+
+- 打开 `Modbus Poll`，设置如下
 
   ![ModbusPollConnection](./figures/ModbusPollConnection.jpg)
 

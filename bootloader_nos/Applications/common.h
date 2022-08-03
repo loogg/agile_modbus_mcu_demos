@@ -2,6 +2,7 @@
 #define __COMMON_H
 
 #include "agile_modbus.h"
+#include "agile_modbus_slave_util.h"
 
 /** @defgroup BOOT_DEF  Boot Definition
  * @{

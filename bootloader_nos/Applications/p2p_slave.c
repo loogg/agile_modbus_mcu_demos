@@ -84,12 +84,13 @@ static void print_progress(size_t cur_size, size_t total_size)
  * @brief   从机回调函数
  * @param   ctx modbus 句柄
  * @param   slave_info 从机信息体
+ * @param   data 私有数据
  * @return  =0:正常;
  *          <0:异常
  *             (-AGILE_MODBUS_EXCEPTION_UNKNOW(-255): 未知异常，从机不会打包响应数据)
  *             (其他负数异常码: 从机会打包异常响应数据)
  */
-static int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_info)
+static int slave_callback(agile_modbus_t *ctx, struct agile_modbus_slave_info *slave_info, const void *data)
 {
     static int __is_start = 0;
     static uint32_t __file_size = 0;
@@ -243,7 +244,7 @@ void modbus_p2p_process(void)
     } break;
 
     case 3: {
-        __send_len = agile_modbus_slave_handle(ctx, __read_len, 1, slave_callback, NULL);
+        __send_len = agile_modbus_slave_handle(ctx, __read_len, 1, slave_callback, NULL, NULL);
         if (__send_len <= 0)
             *run_step = 1;
         else

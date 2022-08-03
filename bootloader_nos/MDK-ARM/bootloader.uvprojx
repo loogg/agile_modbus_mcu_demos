@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;    ../Drivers/STM32F4xx_HAL_Driver/Inc;    ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;    ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;    ../Drivers/CMSIS/Include;    ..\Applications;    ..\agile_modbus\inc</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\Applications;..\agile_modbus\inc;..\agile_modbus\util</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -678,6 +678,31 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>slave</GroupName>
+          <Files>
+            <File>
+              <FileName>bits.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\slave\bits.c</FilePath>
+            </File>
+            <File>
+              <FileName>input_bits.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\slave\input_bits.c</FilePath>
+            </File>
+            <File>
+              <FileName>input_registers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\slave\input_registers.c</FilePath>
+            </File>
+            <File>
+              <FileName>registers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Applications\slave\registers.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>agile_modbus</GroupName>
           <Files>
             <File>
@@ -694,6 +719,11 @@
               <FileName>agile_modbus_tcp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\agile_modbus\src\agile_modbus_tcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>agile_modbus_slave_util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\agile_modbus\util\agile_modbus_slave_util.c</FilePath>
             </File>
           </Files>
         </Group>
