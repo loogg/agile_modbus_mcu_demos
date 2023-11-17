@@ -41,7 +41,6 @@ const agile_modbus_slave_util_t slave_util = {
     NULL,
     NULL};
 
-
 static mbtcp_session_t *get_free_session(void) {
     for (int i = 0; i < MBTCP_MAX_CONNECTIONS; i++) {
         rt_base_t level = rt_hw_interrupt_disable();
@@ -318,20 +317,19 @@ _server_start:
                 int client_fd = accept(_server.socket, (struct sockaddr *)&cliaddr, &addrlen);
                 if (client_fd < 0) {
                     LOG_W("accept client socket failed");
-                    break;
-                }
-
-                mbtcp_session_t *session = get_free_session();
-                if (session == RT_NULL) {
-                    LOG_W("no free session, close");
-                    closesocket(client_fd);
                 } else {
-                    LOG_I("new client connected");
+                    mbtcp_session_t *session = get_free_session();
+                    if (session == RT_NULL) {
+                        LOG_W("no free session, close");
+                        closesocket(client_fd);
+                    } else {
+                        LOG_I("new client connected");
 
-                    rt_base_t level = rt_hw_interrupt_disable();
-                    session->socket = client_fd;
-                    session->active = 1;
-                    rt_hw_interrupt_enable(level);
+                        rt_base_t level = rt_hw_interrupt_disable();
+                        session->socket = client_fd;
+                        session->active = 1;
+                        rt_hw_interrupt_enable(level);
+                    }
                 }
             }
         }
